@@ -8,19 +8,45 @@ instr_list = []
 label_list = []
 opcode_list = ['add','sub','mov','ld','st','mul','div','rs','ls','xor','or','and','not','cmp','jmp','jlt','jgt','je','hlt']
 op_4_list = ['add','sub','mul','xor','or','and']
-op_3_list = ['mov','ld','st','div','rs','ls','not','cmp']
+op_3_reg_reg_list = ['div','not','cmp']
+op_3_reg_imm_list = ['rs','ls']
+op_3_reg_mem_list = ['ld','st']
 op_2_list = ['jmp','jlt','jgt','je']
+reg_list = ['R0','R1','R2','R3','R4','R5','R6','FLAGS']
 
 toggle_var_start = 33
 
 for i in f1:
     line_count+=1
-    instr_list.append(i)
 
     if i.endswith('\n'):
         s1 = i[:-1]
     else:
         s1 = i
+    l2 = s1.split()
+
+    if len(l2) == 1:
+        if l2[0].endswith(':'):
+            s3 = l2[0][:-1]
+            if s3.isalnum() and s3 not in label_list:
+                label_list.append(s3)
+            else:
+                s2 = "Error on Line " + str(line_count) + ": General Syntax Error"
+                f2.write(s2)
+                break
+
+f1.close()
+f1 = open("Assembly Instructions.txt","r")
+line_count = 0
+
+for i in f1:
+    line_count+=1
+
+    if i.endswith('\n'):
+        s1 = i[:-1]
+    else:
+        s1 = i
+    instr_list.append(s1)
 
     l2 = s1.split()
 
@@ -30,7 +56,7 @@ for i in f1:
     if l2[0]=='var':
         if toggle_var_start == 33:
             if len(l2) != 2:
-                s2 = "Line " + str(line_count) + ": General Syntax Error"
+                s2 = "Error on Line " + str(line_count) + ": General Syntax Error"
                 f2.write(s2)
                 break
             else:
@@ -38,27 +64,181 @@ for i in f1:
                     if l2[1].isalnum():
                         var_list.append(l2[1])
                     else:
-                        s2 = "Line " + str(line_count) + ": General Syntax Error"
+                        s2 = "Error on Line " + str(line_count) + ": General Syntax Error"
                         f2.write(s2)
                         break
         
         else:
-            s2 = "Line " + str(line_count) + ": Variables not declared at the beginning"
+            s2 = "Error on Line " + str(line_count) + ": Variables not declared at the beginning"
             f2.write(s2)
             break
     
     elif len(l2) == 1:
         toggle_var_start = 0
+
         if l2[0].endswith(':'):
-            s3 = l2[0][:-1]
-            if s3.isalnum() and s3 not in label_list:
-                label_list.append(s3)
-            else:
-                s2 = "Line " + str(line_count) + ": General Syntax Error"
-                f2.write(s2)
-                break
+            pass
+
         else:
-            if l2[0] != 'hlt':
-                s2 = "Line " + str(line_count) + ": Typo in Instruction Name"
+            if l2[0] not in opcode_list:
+                s2 = "Error on Line " + str(line_count) + ": Typo in Instruction Name"
                 f2.write(s2)
                 break
+
+            elif l2[0] != 'hlt':
+                s2 = "Error on Line " + str(line_count) + ": General Syntax Error"
+                f2.write(s2)
+                break
+    
+    elif l2[0] in op_2_list:
+        toggle_var_start = 0
+
+        if len(l2) != 2:
+            s2 = "Error on Line " + str(line_count) + ": General Syntax Error"
+            f2.write(s2)
+            break
+
+        if l2[1] not in label_list:
+            if l2[1] in var_list:
+                s2 = "Error on Line " + str(line_count) + ": Misuse of variable as label"
+                f2.write(s2)
+                break
+
+            else:
+                s2 = "Error on Line " + str(line_count) + ": Use of undefined label"
+                f2.write(s2)
+                break
+
+    elif l2[0] in op_3_reg_mem_list:
+        toggle_var_start = 0
+
+        if len(l2) != 3:
+            s2 = "Error on Line " + str(line_count) + ": General Syntax Error"
+            f2.write(s2)
+            break
+
+        if l2[1] not in reg_list:
+            s2 = "Error on Line " + str(line_count) + ": Typo in Register Name"
+            f2.write(s2)
+            break
+
+        if l2[2] not in var_list:
+            if l2[2] in label_list:
+                s2 = "Error on Line " + str(line_count) + ": Misuse of label as variable"
+                f2.write(s2)
+                break
+
+            else:
+                s2 = "Error on Line " + str(line_count) + ": Use of undefined variable"
+                f2.write(s2)
+                break
+
+    elif l2[0] in op_3_reg_imm_list:
+        toggle_var_start = 0
+
+        if len(l2) != 3:
+            s2 = "Error on Line " + str(line_count) + ": General Syntax Error"
+            f2.write(s2)
+            break
+
+        if l2[1] not in reg_list:
+            s2 = "Error on Line " + str(line_count) + ": Typo in Register Name"
+            f2.write(s2)
+            break
+
+        if not l2[2].startswith("$"):
+            s2 = "Error on Line " + str(line_count) + ": General Syntax Error"
+            f2.write(s2)
+            break
+
+        try:
+            if not (0 <= int(l2[2][1:]) <= 127):
+                s2 = "Error on Line " + str(line_count) + ": Illegal Immediate Value"
+                f2.write(s2)
+                break
+        
+        except:
+            s2 = "Error on Line " + str(line_count) + ": General Syntax Error"
+            f2.write(s2)
+            break
+
+    elif l2[0] in op_3_reg_reg_list:
+        toggle_var_start = 0
+
+        if len(l2) != 3:
+            s2 = "Error on Line " + str(line_count) + ": General Syntax Error"
+            f2.write(s2)
+            break
+
+        if l2[1] not in reg_list:
+            s2 = "Error on Line " + str(line_count) + ": Typo in Name of First Register"
+            f2.write(s2)
+            break
+
+        if l2[2] not in reg_list:
+            s2 = "Error on Line " + str(line_count) + ": Typo in Name of Second Register"
+            f2.write(s2)
+            break
+
+    elif l2[0] in op_4_list:
+        toggle_var_start = 0
+
+        if len(l2) != 4:
+            s2 = "Error on Line " + str(line_count) + ": General Syntax Error"
+            f2.write(s2)
+            break
+
+        if l2[1] not in reg_list:
+            s2 = "Error on Line " + str(line_count) + ": Typo in Name of First Register"
+            f2.write(s2)
+            break
+
+        if l2[2] not in reg_list:
+            s2 = "Error on Line " + str(line_count) + ": Typo in Name of Second Register"
+            f2.write(s2)
+            break
+
+        if l2[3] not in reg_list:
+            s2 = "Error on Line " + str(line_count) + ": Typo in Name of Third Register"
+            f2.write(s2)
+            break
+
+    elif l2[0] == 'mov':
+        toggle_var_start = 0
+
+        if len(l2) != 3:
+            s2 = "Error on Line " + str(line_count) + ": General Syntax Error"
+            f2.write(s2)
+            break
+
+        if l2[1] not in reg_list:
+            s2 = "Error on Line " + str(line_count) + ": Typo in Name of First Register"
+            f2.write(s2)
+            break
+
+        if l2[2] in reg_list:
+            pass
+
+        else:
+            if l2[2].startswith('$'):
+                try:
+                    if not (0 <= int(l2[2][1:]) <= 127):
+                        s2 = "Error on Line " + str(line_count) + ": Illegal Immediate Value"
+                        f2.write(s2)
+                        break
+                
+                except:
+                    s2 = "Error on Line " + str(line_count) + ": General Syntax Error"
+                    f2.write(s2)
+                    break
+
+            else:
+                if l2[2] not in reg_list:
+                    s2 = "Error on Line " + str(line_count) + ": Typo in Name of Second Register"
+                    f2.write(s2)
+                    break
+    
+    else:
+        s2 = "Error on Line " + str(line_count) + ": Typo in Instruction Name"
+        f2.write(s2)
+        break

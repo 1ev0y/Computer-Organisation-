@@ -12,7 +12,7 @@ def file_analysis(l2):
                 return 12
             else:
                 if l2[1] not in var_list:
-                    if l2[1].isalnum():
+                    if l2[1].isalpha():
                         var_list.append(l2[1])
                     else:
                         s2 = "Error on Line " + str(line_count) + ": General Syntax Error"
@@ -73,6 +73,11 @@ def file_analysis(l2):
             s2 = "Error on Line " + str(line_count) + ": General Syntax Error"
             f2.write(s2)
             return 12
+        
+        if l2[1] == 'FLAGS':
+            s2 = "Error on Line " + str(line_count) + ": Illegal use of FLAGS register"
+            f2.write(s2)
+            return 12
 
         if l2[1] not in reg_list:
             s2 = "Error on Line " + str(line_count) + ": Typo in Register Name"
@@ -95,6 +100,11 @@ def file_analysis(l2):
 
         if len(l2) != 3:
             s2 = "Error on Line " + str(line_count) + ": General Syntax Error"
+            f2.write(s2)
+            return 12
+        
+        if l2[1] == 'FLAGS':
+            s2 = "Error on Line " + str(line_count) + ": Illegal use of FLAGS register"
             f2.write(s2)
             return 12
 
@@ -126,9 +136,19 @@ def file_analysis(l2):
             s2 = "Error on Line " + str(line_count) + ": General Syntax Error"
             f2.write(s2)
             return 12
+        
+        if l2[1] == 'FLAGS':
+            s2 = "Error on Line " + str(line_count) + ": Illegal use of FLAGS register"
+            f2.write(s2)
+            return 12
 
         if l2[1] not in reg_list:
             s2 = "Error on Line " + str(line_count) + ": Typo in Name of First Register"
+            f2.write(s2)
+            return 12
+        
+        if l2[2] == 'FLAGS':
+            s2 = "Error on Line " + str(line_count) + ": Illegal use of FLAGS register"
             f2.write(s2)
             return 12
 
@@ -144,14 +164,29 @@ def file_analysis(l2):
             s2 = "Error on Line " + str(line_count) + ": General Syntax Error"
             f2.write(s2)
             return 12
+        
+        if l2[1] == 'FLAGS':
+            s2 = "Error on Line " + str(line_count) + ": Illegal use of FLAGS register"
+            f2.write(s2)
+            return 12
 
         if l2[1] not in reg_list:
             s2 = "Error on Line " + str(line_count) + ": Typo in Name of First Register"
             f2.write(s2)
             return 12
+        
+        if l2[2] == 'FLAGS':
+            s2 = "Error on Line " + str(line_count) + ": Illegal use of FLAGS register"
+            f2.write(s2)
+            return 12
 
         if l2[2] not in reg_list:
             s2 = "Error on Line " + str(line_count) + ": Typo in Name of Second Register"
+            f2.write(s2)
+            return 12
+        
+        if l2[3] == 'FLAGS':
+            s2 = "Error on Line " + str(line_count) + ": Illegal use of FLAGS register"
             f2.write(s2)
             return 12
 
@@ -165,6 +200,11 @@ def file_analysis(l2):
 
         if len(l2) != 3:
             s2 = "Error on Line " + str(line_count) + ": General Syntax Error"
+            f2.write(s2)
+            return 12
+        
+        if l2[1] == 'FLAGS':
+            s2 = "Error on Line " + str(line_count) + ": Illegal use of FLAGS register"
             f2.write(s2)
             return 12
 
@@ -219,6 +259,7 @@ reg_list = ['R0','R1','R2','R3','R4','R5','R6','FLAGS']
 
 toggle_var_start = 33
 toggle_first_part = 33
+toggle_second_part = 33
 
 for i in f1:
     line_count+=1
@@ -232,7 +273,7 @@ for i in f1:
     if len(l2) >= 1:
         if l2[0].endswith(':'):
             s3 = l2[0][:-1]
-            if s3.isalnum() and s3 not in label_list:
+            if s3.isalpha() and s3 not in label_list:
                 label_list.append(s3)
             else:
                 toggle_first_part = 0
@@ -263,6 +304,7 @@ if toggle_first_part == 33:
 
                 i1 = file_analysis(l2[1:])
                 if i1 == 12:
+                    toggle_second_part = 0
                     break
                 if i1 == 0:
                     continue
@@ -270,6 +312,7 @@ if toggle_first_part == 33:
             else:
                 i1 = file_analysis(l2)
                 if i1 == 12:
+                    toggle_second_part = 0
                     break
                 if i1 == 0:
                     continue
@@ -277,8 +320,80 @@ if toggle_first_part == 33:
         except:
             i1 = file_analysis(l2)
             if i1 == 12:
+                toggle_second_part = 0
                 break
             if i1 == 0:
                 continue
 
 f1.close()
+f2.close()
+
+instr_list = []
+
+f1 = open("Assembly Instructions.txt","r")
+for i in f1:
+    if i.endswith('\n'):
+        s1 = i[:-1]
+    else:
+        s1 = i
+    instr_list.append(s1)
+f1.close()
+
+line_count = len(instr_list)+1
+last_line_idx = 0
+instr_list.reverse()
+for i in instr_list:
+    line_count-=1
+    l3 = i.split()
+    if l3 == []:
+        continue
+
+    else:
+        last_line_idx = line_count
+
+    if len(l3)==2:
+        if l3[1] != 'hlt':
+            f2 = open("Executable.txt",'w')
+            s2 = "Error on Line " + str(line_count) + ": Missing Hlt Instruction"
+            f2.write(s2)
+            f2.close()
+        break
+
+    elif len(l3)==1:
+        if l3[0] != 'hlt':
+            f2 = open("Executable.txt",'w')
+            s2 = "Error on Line " + str(line_count) + ": Missing Hlt Instruction"
+            f2.write(s2)
+            f2.close()
+        break
+
+    else:
+        f2 = open("Executable.txt",'w')
+        s2 = "Error on Line " + str(line_count) + ": Missing Hlt Instruction"
+        f2.write(s2)
+        f2.close()
+    break
+
+instr_list.reverse()
+for i in range(1,len(instr_list)+1):
+    l3 = instr_list[i-1].split()
+    
+    if i == last_line_idx:
+        break
+
+    if len(l3) == 2:
+        if l3[0].endswith(":"):
+            if l3[1] == 'hlt':
+                f2 = open("Executable.txt",'w')
+                s2 = "Error on Line " + str(i) + ": Hlt not being used as the last instruction"
+                f2.write(s2)
+                f2.close()
+                break
+
+    if len(l3) == 1:
+        if l3[0] == 'hlt':
+            f2 = open("Executable.txt",'w')
+            s2 = "Error on Line " + str(i) + ": Hlt not being used as the last instruction"
+            f2.write(s2)
+            f2.close()
+            break

@@ -16,30 +16,35 @@ reg_list = {'000':'R0','001':'R1','010':'R2','011':'R3','100':'R4','101':'R5','1
 for i in content:
     opcode=i[:5]
     opcodes.append(opcode)
-    for j in A:
-        if opcode==j:
-            types.append("A")
-            commands.append(A[j])
-    for j in B:
-        if opcode==j:
-            types.append("B")
-            commands.append(B[j])
-    for j in C:
-        if opcode==j:
-            types.append("C")
-            commands.append(C[j])
-    for j in D:
-        if opcode==j:
-            types.append("D")
-            commands.append(D[j])
-    for j in E:
-        if opcode==j:
-            types.append("E")
-            commands.append(E[j])
-    for j in F:
-        if opcode==j:
-            types.append("F")
-            commands.append(F[j])
+    if opcode in A:
+        l=[i[7:10],i[10:13],i[13:16]]
+        types.append("A")
+        commands.append(A[opcode])
+        memory.append(l)
+    if opcode in B:
+        l=[i[6:9],i[9:16]]
+        types.append("B")
+        commands.append(B[opcode])
+        memory.append(l)
+    if opcode in C:
+        l=[i[10:13],i[13:16]]
+        types.append("C")
+        commands.append(C[opcode])
+        memory.append(l)
+    if opcode in D:
+        l=[[i[6:9],i[9:16]]]
+        types.append("D")
+        commands.append(D[opcode])
+        memory.append(l)
+    if opcode in E:
+        l=[i[9:16]]
+        types.append("E")
+        commands.append(E[opcode])
+        memory.append(l)
+    if opcode in F:
+        types.append("F")
+        commands.append(F[opcode])
+        memory.append("end")
     
 print(opcodes)
 print(types)

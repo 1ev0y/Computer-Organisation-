@@ -28,9 +28,7 @@ def file_analysis(l2):
                     var_list[l2[1]] = fix_len(bin(mem_address)[2:])
                 
                 else:
-                    s2 = "Error on Line " + str(line_count) + ": General Syntax Error"
-                    f2.write(s2)
-                    return 12
+                    var_list[l2[1]] = fix_len(bin(mem_address)[2:])
         
         else:
             if len(l2) != 2:
@@ -441,3 +439,6 @@ if toggle_first_part==33 and toggle_second_part==33:
     f2 = open("Executable.txt",'w')
     f2.write(main_string)
     f2.close()
+
+
+print(var_list)

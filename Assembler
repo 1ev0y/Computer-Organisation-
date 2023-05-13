@@ -146,7 +146,7 @@ def file_analysis(l2):
             f2.write(s2)
             return 12
         
-        main_string = main_string + op_3_reg_imm_list[l2[0]] + '0' + reg_list[l2[1]] + fix_len(bin(l2[2][1:])[2:]) + '\n'
+        main_string = main_string + op_3_reg_imm_list[l2[0]] + '0' + reg_list[l2[1]] + fix_len(bin(int(l2[2][1:]))[2:]) + '\n'
 
     elif l2[0] in op_3_reg_reg_list:
         toggle_var_start = 0
@@ -258,7 +258,7 @@ def file_analysis(l2):
                     f2.write(s2)
                     return 12
                 
-            main_string = main_string + '000100' + reg_list[l2[1]] + fix_len(bin(l2[2][1:])[2:]) + '\n'
+            main_string = main_string + '000100' + reg_list[l2[1]] + fix_len(bin(int(l2[2][1:]))[2:]) + '\n'
     
     else:
         toggle_var_start = 0

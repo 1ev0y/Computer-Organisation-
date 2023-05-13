@@ -1,4 +1,7 @@
 def fix_len(s1):
+    if len(s1) >= 8:
+        return s1
+    
     s1 = str(s1)
     if len(s1)==7:
         return s1
@@ -24,6 +27,9 @@ def file_analysis(l2):
                 return 12
             else:
                 mem_address+=1
+                if mem_address>=128:
+                    return 12
+                
                 if l2[1] not in var_list:
                     var_list[l2[1]] = fix_len(bin(mem_address)[2:])
                 
@@ -438,4 +444,9 @@ if toggle_first_part==33 and toggle_second_part==33:
     main_string = main_string + '1101000000000000'
     f2 = open("stdout.txt",'w')
     f2.write(main_string)
+    f2.close()
+
+if mem_address >= 128:
+    f2 = open("stdout.txt",'w')
+    f2.write("Error on Line 129: More than 128 Memory Addresses")
     f2.close()

@@ -1,3 +1,5 @@
+import sys
+
 def fix_len(s1):
     if len(s1) >= 8:
         return s1
@@ -23,7 +25,7 @@ def file_analysis(l2):
         if toggle_var_start == 33:
             if len(l2) != 2:
                 s2 = "Error on Line " + str(line_count) + ": General Syntax Error"
-                f2.write(s2)
+                sys.stdout.write(s2)
                 return 12
             else:
                 mem_address+=1
@@ -39,16 +41,16 @@ def file_analysis(l2):
         else:
             if len(l2) != 2:
                 s2 = "Error on Line " + str(line_count) + ": General Syntax Error"
-                f2.write(s2)
+                sys.stdout.write(s2)
                 return 12
             
             s2 = "Error on Line " + str(line_count) + ": Variables not declared at the beginning"
-            f2.write(s2)
+            sys.stdout.write(s2)
             return 12
         
     elif len(l2) >= 2 and l2[1] == ':':
         s2 = "Error on Line " + str(line_count) + ": General Syntax Error"
-        f2.write(s2)
+        sys.stdout.write(s2)
         return 12
     
     elif len(l2) == 1:
@@ -56,12 +58,12 @@ def file_analysis(l2):
 
         if l2[0] not in opcode_list:
             s2 = "Error on Line " + str(line_count) + ": Typo in Instruction Name \'" + l2[0] + "\'"
-            f2.write(s2)
+            sys.stdout.write(s2)
             return 12
 
         elif l2[0] != 'hlt':
             s2 = "Error on Line " + str(line_count) + ": General Syntax Error"
-            f2.write(s2)
+            sys.stdout.write(s2)
             return 12
     
     elif l2[0] in op_2_list:
@@ -69,18 +71,18 @@ def file_analysis(l2):
 
         if len(l2) != 2:
             s2 = "Error on Line " + str(line_count) + ": General Syntax Error"
-            f2.write(s2)
+            sys.stdout.write(s2)
             return 12
 
         if l2[1] not in label_list:
             if l2[1] in var_list:
                 s2 = "Error on Line " + str(line_count) + ": Misuse of variable \'" + l2[1] + "\'"+" as label"
-                f2.write(s2)
+                sys.stdout.write(s2)
                 return 12
 
             else:
                 s2 = "Error on Line " + str(line_count) + ": Use of undefined label \'" + l2[1] + "\'"
-                f2.write(s2)
+                sys.stdout.write(s2)
                 return 12
             
         main_string = main_string + op_2_list[l2[0]] + '0000' + label_list[l2[1]] + '\n'
@@ -90,28 +92,28 @@ def file_analysis(l2):
 
         if len(l2) != 3:
             s2 = "Error on Line " + str(line_count) + ": General Syntax Error"
-            f2.write(s2)
+            sys.stdout.write(s2)
             return 12
         
         if l2[1] == 'FLAGS':
             s2 = "Error on Line " + str(line_count) + ": Illegal use of FLAGS register"
-            f2.write(s2)
+            sys.stdout.write(s2)
             return 12
 
         if l2[1] not in reg_list:
             s2 = "Error on Line " + str(line_count) + ": Typo in Register Name \'" + l2[1] + "\'"
-            f2.write(s2)
+            sys.stdout.write(s2)
             return 12
 
         if l2[2] not in var_list:
             if l2[2] in label_list:
                 s2 = "Error on Line " + str(line_count) + ": Misuse of label \'" + l2[2] + "\'" + " as variable"
-                f2.write(s2)
+                sys.stdout.write(s2)
                 return 12
 
             else:
                 s2 = "Error on Line " + str(line_count) + ": Use of undefined variable \'" + l2[2] + "\'"
-                f2.write(s2)
+                sys.stdout.write(s2)
                 return 12
             
         main_string = main_string + op_3_reg_mem_list[l2[0]] + '0' + reg_list[l2[1]] + var_list[l2[2]] + '\n'
@@ -121,33 +123,33 @@ def file_analysis(l2):
 
         if len(l2) != 3:
             s2 = "Error on Line " + str(line_count) + ": General Syntax Error"
-            f2.write(s2)
+            sys.stdout.write(s2)
             return 12
         
         if l2[1] == 'FLAGS':
             s2 = "Error on Line " + str(line_count) + ": Illegal use of FLAGS register"
-            f2.write(s2)
+            sys.stdout.write(s2)
             return 12
 
         if l2[1] not in reg_list:
             s2 = "Error on Line " + str(line_count) + ": Typo in Register Name \'" + l2[1] + "\'"
-            f2.write(s2)
+            sys.stdout.write(s2)
             return 12
 
         if not l2[2].startswith("$"):
             s2 = "Error on Line " + str(line_count) + ": General Syntax Error"
-            f2.write(s2)
+            sys.stdout.write(s2)
             return 12
 
         try:
             if not (0 <= int(l2[2][1:]) <= 127):
                 s2 = "Error on Line " + str(line_count) + ": Illegal Immediate Value \'" + l2[2][1:] + "\'"
-                f2.write(s2)
+                sys.stdout.write(s2)
                 return 12
         
         except:
             s2 = "Error on Line " + str(line_count) + ": General Syntax Error"
-            f2.write(s2)
+            sys.stdout.write(s2)
             return 12
         
         main_string = main_string + op_3_reg_imm_list[l2[0]] + '0' + reg_list[l2[1]] + fix_len(bin(int(l2[2][1:]))[2:]) + '\n'
@@ -157,27 +159,27 @@ def file_analysis(l2):
 
         if len(l2) != 3:
             s2 = "Error on Line " + str(line_count) + ": General Syntax Error"
-            f2.write(s2)
+            sys.stdout.write(s2)
             return 12
         
         if l2[1] == 'FLAGS':
             s2 = "Error on Line " + str(line_count) + ": Illegal use of FLAGS register"
-            f2.write(s2)
+            sys.stdout.write(s2)
             return 12
 
         if l2[1] not in reg_list:
             s2 = "Error on Line " + str(line_count) + ": Typo in Name of First Register \'" + l2[1] + "\'"
-            f2.write(s2)
+            sys.stdout.write(s2)
             return 12
         
         if l2[2] == 'FLAGS':
             s2 = "Error on Line " + str(line_count) + ": Illegal use of FLAGS register"
-            f2.write(s2)
+            sys.stdout.write(s2)
             return 12
 
         if l2[2] not in reg_list:
             s2 = "Error on Line " + str(line_count) + ": Typo in Name of Second Register \'" + l2[2] + "\'"
-            f2.write(s2)
+            sys.stdout.write(s2)
             return 12
         
         main_string = main_string + op_3_reg_reg_list[l2[0]] + '00000' + reg_list[l2[1]] + reg_list[l2[2]] + '\n'
@@ -187,37 +189,37 @@ def file_analysis(l2):
 
         if len(l2) != 4:
             s2 = "Error on Line " + str(line_count) + ": General Syntax Error"
-            f2.write(s2)
+            sys.stdout.write(s2)
             return 12
         
         if l2[1] == 'FLAGS':
             s2 = "Error on Line " + str(line_count) + ": Illegal use of FLAGS register"
-            f2.write(s2)
+            sys.stdout.write(s2)
             return 12
 
         if l2[1] not in reg_list:
             s2 = "Error on Line " + str(line_count) + ": Typo in Name of First Register \'" + l2[1] + "\'"
-            f2.write(s2)
+            sys.stdout.write(s2)
             return 12
         
         if l2[2] == 'FLAGS':
             s2 = "Error on Line " + str(line_count) + ": Illegal use of FLAGS register"
-            f2.write(s2)
+            sys.stdout.write(s2)
             return 12
 
         if l2[2] not in reg_list:
             s2 = "Error on Line " + str(line_count) + ": Typo in Name of Second Register \'" + l2[2] + "\'"
-            f2.write(s2)
+            sys.stdout.write(s2)
             return 12
         
         if l2[3] == 'FLAGS':
             s2 = "Error on Line " + str(line_count) + ": Illegal use of FLAGS register"
-            f2.write(s2)
+            sys.stdout.write(s2)
             return 12
 
         if l2[3] not in reg_list:
             s2 = "Error on Line " + str(line_count) + ": Typo in Name of Third Register \'" + l2[3] + "\'"
-            f2.write(s2)
+            sys.stdout.write(s2)
             return 12
         
         main_string = main_string + op_4_list[l2[0]] + '00' + reg_list[l2[1]] + reg_list[l2[2]] + reg_list[l2[3]] + '\n'
@@ -227,17 +229,17 @@ def file_analysis(l2):
 
         if len(l2) != 3:
             s2 = "Error on Line " + str(line_count) + ": General Syntax Error"
-            f2.write(s2)
+            sys.stdout.write(s2)
             return 12
         
         if l2[1] == 'FLAGS':
             s2 = "Error on Line " + str(line_count) + ": Illegal use of FLAGS register"
-            f2.write(s2)
+            sys.stdout.write(s2)
             return 12
 
         if l2[1] not in reg_list:
             s2 = "Error on Line " + str(line_count) + ": Typo in Name of First Register \'" + l2[1] + "\'"
-            f2.write(s2)
+            sys.stdout.write(s2)
             return 12
 
         if l2[2] in reg_list:
@@ -248,18 +250,18 @@ def file_analysis(l2):
                 try:
                     if not (0 <= int(l2[2][1:]) <= 127):
                         s2 = "Error on Line " + str(line_count) + ": Illegal Immediate Value \'" + l2[2][1:] + "\'"
-                        f2.write(s2)
+                        sys.stdout.write(s2)
                         return 12
                 
                 except:
                     s2 = "Error on Line " + str(line_count) + ": General Syntax Error"
-                    f2.write(s2)
+                    sys.stdout.write(s2)
                     return 12
 
             else:
                 if l2[2] not in reg_list:
                     s2 = "Error on Line " + str(line_count) + ": Typo in Name of Second Register \'" + l2[2] + "\'"
-                    f2.write(s2)
+                    sys.stdout.write(s2)
                     return 12
                 
             main_string = main_string + '000100' + reg_list[l2[1]] + fix_len(bin(int(l2[2][1:]))[2:]) + '\n'
@@ -267,7 +269,7 @@ def file_analysis(l2):
     else:
         toggle_var_start = 0
         s2 = "Error on Line " + str(line_count) + ": Typo in Instruction Name"
-        f2.write(s2)
+        sys.stdout.write(s2)
         return 12
 
 f1 = open("stdin.txt","r")
@@ -294,7 +296,7 @@ main_string = ''
 
 mem_address = -1
 
-for i in f1:
+for i in sys.stdin:
     line_count+=1
 
     if i.endswith('\n'):
@@ -315,7 +317,7 @@ for i in f1:
             else:
                 toggle_first_part = 0
                 s2 = "Error on Line " + str(line_count) + ": General Syntax Error"
-                f2.write(s2)
+                sys.stdout.write(s2)
                 break
 
 f1.close()
@@ -324,7 +326,7 @@ if toggle_first_part == 33:
     f1 = open("stdin.txt","r")
     line_count = 0
 
-    for i in f1:
+    for i in sys.stdin:
         line_count+=1
 
         if i.endswith('\n'):
@@ -368,7 +370,7 @@ f2.close()
 instr_list = []
 
 f1 = open("stdin.txt","r")
-for i in f1:
+for i in sys.stdin:
     if i.endswith('\n'):
         s1 = i[:-1]
     else:
@@ -393,7 +395,7 @@ for i in instr_list:
             f2 = open("stdout.txt",'w')
             s2 = "Error on Line " + str(line_count) + ": Missing Hlt Instruction"
             toggle_second_part = 0
-            f2.write(s2)
+            sys.stdout.write(s2)
             f2.close()
         break
 
@@ -402,7 +404,7 @@ for i in instr_list:
             f2 = open("stdout.txt",'w')
             s2 = "Error on Line " + str(line_count) + ": Missing Hlt Instruction"
             toggle_second_part = 0
-            f2.write(s2)
+            sys.stdout.write(s2)
             f2.close()
         break
 
@@ -410,7 +412,7 @@ for i in instr_list:
         f2 = open("stdout.txt",'w')
         s2 = "Error on Line " + str(line_count) + ": Missing Hlt Instruction"
         toggle_second_part = 0
-        f2.write(s2)
+        sys.stdout.write(s2)
         f2.close()
     break
 
@@ -427,7 +429,7 @@ for i in range(1,len(instr_list)+1):
                 f2 = open("stdout.txt",'w')
                 toggle_second_part = 0
                 s2 = "Error on Line " + str(i) + ": Hlt not being used as the last instruction"
-                f2.write(s2)
+                sys.stdout.write(s2)
                 f2.close()
                 break
 
@@ -436,17 +438,17 @@ for i in range(1,len(instr_list)+1):
             f2 = open("stdout.txt",'w')
             toggle_second_part = 0
             s2 = "Error on Line " + str(i) + ": Hlt not being used as the last instruction"
-            f2.write(s2)
+            sys.stdout.write(s2)
             f2.close()
             break
 
 if toggle_first_part==33 and toggle_second_part==33:
     main_string = main_string + '1101000000000000'
     f2 = open("stdout.txt",'w')
-    f2.write(main_string)
+    sys.stdout.write(main_string)
     f2.close()
 
 if mem_address >= 128:
     f2 = open("stdout.txt",'w')
-    f2.write("Error on Line 129: More than 128 Memory Addresses")
+    sys.stdout.write("Error on Line 129: More than 128 Memory Addresses")
     f2.close()

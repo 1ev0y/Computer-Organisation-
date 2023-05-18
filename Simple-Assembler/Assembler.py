@@ -381,17 +381,35 @@ for i in f1:
 line_count = len(instr_list)+1
 last_line_idx = 0
 instr_list.reverse()
-for i in instr_list:
-    line_count-=1
-    l3 = i.split()
-    if l3 == []:
-        continue
+if toggle_first_part==33 and toggle_second_part==33:
+    for i in instr_list:
+        line_count-=1
+        l3 = i.split()
+        if l3 == []:
+            continue
 
-    else:
-        last_line_idx = line_count
+        else:
+            last_line_idx = line_count
 
-    if len(l3)==2:
-        if l3[1] != 'hlt':
+        if len(l3)==2:
+            if l3[1] != 'hlt':
+                
+                s2 = "Error on Line " + str(line_count) + ": Missing Hlt Instruction"
+                toggle_second_part = 0
+                f2.write(s2)
+                
+            break
+
+        elif len(l3)==1:
+            if l3[0] != 'hlt':
+                
+                s2 = "Error on Line " + str(line_count) + ": Missing Hlt Instruction"
+                toggle_second_part = 0
+                f2.write(s2)
+                
+            break
+
+        else:
             
             s2 = "Error on Line " + str(line_count) + ": Missing Hlt Instruction"
             toggle_second_part = 0
@@ -399,33 +417,25 @@ for i in instr_list:
             
         break
 
-    elif len(l3)==1:
-        if l3[0] != 'hlt':
-            
-            s2 = "Error on Line " + str(line_count) + ": Missing Hlt Instruction"
-            toggle_second_part = 0
-            f2.write(s2)
-            
-        break
-
-    else:
+    instr_list.reverse()
+    for i in range(1,len(instr_list)+1):
+        l3 = instr_list[i-1].split()
         
-        s2 = "Error on Line " + str(line_count) + ": Missing Hlt Instruction"
-        toggle_second_part = 0
-        f2.write(s2)
-        
-    break
+        if i == last_line_idx:
+            break
 
-instr_list.reverse()
-for i in range(1,len(instr_list)+1):
-    l3 = instr_list[i-1].split()
-    
-    if i == last_line_idx:
-        break
+        if len(l3) == 2:
+            if l3[0].endswith(":"):
+                if l3[1] == 'hlt':
+                    
+                    toggle_second_part = 0
+                    s2 = "Error on Line " + str(i) + ": Hlt not being used as the last instruction"
+                    f2.write(s2)
+                    
+                    break
 
-    if len(l3) == 2:
-        if l3[0].endswith(":"):
-            if l3[1] == 'hlt':
+        if len(l3) == 1:
+            if l3[0] == 'hlt':
                 
                 toggle_second_part = 0
                 s2 = "Error on Line " + str(i) + ": Hlt not being used as the last instruction"
@@ -433,21 +443,14 @@ for i in range(1,len(instr_list)+1):
                 
                 break
 
-    if len(l3) == 1:
-        if l3[0] == 'hlt':
-            
-            toggle_second_part = 0
-            s2 = "Error on Line " + str(i) + ": Hlt not being used as the last instruction"
-            f2.write(s2)
-            
-            break
-
 if toggle_first_part==33 and toggle_second_part==33:
     main_string = main_string + '1101000000000000'
     
     f2.write(main_string)
-    
+    toggle_second_part=0
 
-if mem_address >= 128:
     
-    f2.write("Error on Line 129: More than 128 Memory Addresses")
+if toggle_first_part==33 and toggle_second_part==33:
+    if mem_address >= 128:
+        
+        f2.write("Error on Line 129: More than 128 Memory Addresses")

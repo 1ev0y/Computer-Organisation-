@@ -1,456 +1,221 @@
-import sys
+opcodes=[]
+commands=[]
+types=[]
+memory=[] # nested list where each element is a instruction
+A = {'00000':'add','00001':'sub','00110':'mul','01010':'xor','01011':'or','01100':'and'}
+B = {'00010':'mov','01000':'rs','01001':'ls'} #move immediate
+C = {'00011':'mov','00111':'div','01101':'not','01110':'cmp'}  #move register
+D = {'00100':'ld','00101':'st'}
+E = {'01111':'jmp','11100':'jlt','11101':'jgt','11111':'je'}
+F = {'11010':'hlt'}
+R0 = R1 = R2 = R3 = R4 = R5 = R6 = FLAGS = "0000000000000000" #16 bit value for each register
+reg_list = {'000':R0,'001':R1,'010':R2,'011':R3,'100':R4,'101':R5,'110':R6,'111':FLAGS} #adress gives register
+
+
+def initialize():
+    fobj=open("stdout.txt","r")
+    content=fobj.readlines()
+    
+    for i in content:
+        opcode=i[:5]
+        opcodes.append(opcode)
+        if opcode in A:
+            l=[i[7:10],i[10:13],i[13:16]]
+            types.append("A")
+            commands.append(A[opcode])
+            memory.append(l)
+        if opcode in B:
+            l=[i[6:9],i[9:16]]
+            types.append("B")
+            commands.append(B[opcode])
+            memory.append(l)
+        if opcode in C:
+            l=[i[10:13],i[13:16]]
+            types.append("C")
+            commands.append(C[opcode])
+            memory.append(l)
+        if opcode in D:
+            l=[[i[6:9],i[9:16]]]
+            types.append("D")
+            commands.append(D[opcode])
+            memory.append(l)
+        if opcode in E:
+            l=[i[9:16]]
+            types.append("E")
+            commands.append(E[opcode])
+            memory.append(l)
+        if opcode in F:
+            types.append("F")
+            commands.append(F[opcode])
+            memory.append("end") 
+
+initialize()
+
 def fix_len(s1):
-    if len(s1) >= 8:
+    if len(s1)>16:
+        x = len(s1) - 16
+        s1 = s1[x:]
         return s1
-    
-    s1 = str(s1)
-    if len(s1)==7:
-        return s1
-    
-    while len(s1)!=7:
+    while len(s1)<16:
         s1 = '0' + s1
-
     return s1
+def set_flags(x):
+    if x == "V":
+        reg_list["111"] = "0000000000001000"
+    if x == "L":
+        reg_list["111"] = "0000000000000100"
+    if x == "G":
+        reg_list["111"] = "0000000000000010"
+    if x == "E":
+        reg_list["111"] = "0000000000000001"
 
-def file_analysis(l2):
-    global main_string
-    global toggle_var_start
-    global mem_address
-
-    if l2 == []:
-        return 0
-    
-    if l2[0]=='var':
-        if toggle_var_start == 33:
-            if len(l2) != 2:
-                s2 = "Error on Line " + str(line_count) + ": General Syntax Error"
-                f2.write(s2)
-                return 12
-            else:
-                mem_address+=1
-                if mem_address>=128:
-                    return 12
-                
-                if l2[1] not in var_list:
-                    var_list[l2[1]] = fix_len(bin(mem_address)[2:])
-                
-                else:
-                    var_list[l2[1]] = fix_len(bin(mem_address)[2:])
-        
-        else:
-            if len(l2) != 2:
-                s2 = "Error on Line " + str(line_count) + ": General Syntax Error"
-                f2.write(s2)
-                return 12
-            
-            s2 = "Error on Line " + str(line_count) + ": Variables not declared at the beginning"
-            f2.write(s2)
-            return 12
-        
-    elif len(l2) >= 2 and l2[1] == ':':
-        s2 = "Error on Line " + str(line_count) + ": General Syntax Error"
-        f2.write(s2)
-        return 12
-    
-    elif len(l2) == 1:
-        toggle_var_start = 0
-
-        if l2[0] not in opcode_list:
-            s2 = "Error on Line " + str(line_count) + ": Typo in Instruction Name \'" + l2[0] + "\'"
-            f2.write(s2)
-            return 12
-
-        elif l2[0] != 'hlt':
-            s2 = "Error on Line " + str(line_count) + ": General Syntax Error"
-            f2.write(s2)
-            return 12
-    
-    elif l2[0] in op_2_list:
-        toggle_var_start = 0
-
-        if len(l2) != 2:
-            s2 = "Error on Line " + str(line_count) + ": General Syntax Error"
-            f2.write(s2)
-            return 12
-
-        if l2[1] not in label_list:
-            if l2[1] in var_list:
-                s2 = "Error on Line " + str(line_count) + ": Misuse of variable \'" + l2[1] + "\'"+" as label"
-                f2.write(s2)
-                return 12
-
-            else:
-                s2 = "Error on Line " + str(line_count) + ": Use of undefined label \'" + l2[1] + "\'"
-                f2.write(s2)
-                return 12
-            
-        main_string = main_string + op_2_list[l2[0]] + '0000' + label_list[l2[1]] + '\n'
-
-    elif l2[0] in op_3_reg_mem_list:
-        toggle_var_start = 0
-
-        if len(l2) != 3:
-            s2 = "Error on Line " + str(line_count) + ": General Syntax Error"
-            f2.write(s2)
-            return 12
-        
-        if l2[1] == 'FLAGS':
-            s2 = "Error on Line " + str(line_count) + ": Illegal use of FLAGS register"
-            f2.write(s2)
-            return 12
-
-        if l2[1] not in reg_list:
-            s2 = "Error on Line " + str(line_count) + ": Typo in Register Name \'" + l2[1] + "\'"
-            f2.write(s2)
-            return 12
-
-        if l2[2] not in var_list:
-            if l2[2] in label_list:
-                s2 = "Error on Line " + str(line_count) + ": Misuse of label \'" + l2[2] + "\'" + " as variable"
-                f2.write(s2)
-                return 12
-
-            else:
-                s2 = "Error on Line " + str(line_count) + ": Use of undefined variable \'" + l2[2] + "\'"
-                f2.write(s2)
-                return 12
-            
-        main_string = main_string + op_3_reg_mem_list[l2[0]] + '0' + reg_list[l2[1]] + var_list[l2[2]] + '\n'
-
-    elif l2[0] in op_3_reg_imm_list:
-        toggle_var_start = 0
-
-        if len(l2) != 3:
-            s2 = "Error on Line " + str(line_count) + ": General Syntax Error"
-            f2.write(s2)
-            return 12
-        
-        if l2[1] == 'FLAGS':
-            s2 = "Error on Line " + str(line_count) + ": Illegal use of FLAGS register"
-            f2.write(s2)
-            return 12
-
-        if l2[1] not in reg_list:
-            s2 = "Error on Line " + str(line_count) + ": Typo in Register Name \'" + l2[1] + "\'"
-            f2.write(s2)
-            return 12
-
-        if not l2[2].startswith("$"):
-            s2 = "Error on Line " + str(line_count) + ": General Syntax Error"
-            f2.write(s2)
-            return 12
-
-        try:
-            if not (0 <= int(l2[2][1:]) <= 127):
-                s2 = "Error on Line " + str(line_count) + ": Illegal Immediate Value \'" + l2[2][1:] + "\'"
-                f2.write(s2)
-                return 12
-        
-        except:
-            s2 = "Error on Line " + str(line_count) + ": General Syntax Error"
-            f2.write(s2)
-            return 12
-        
-        main_string = main_string + op_3_reg_imm_list[l2[0]] + '0' + reg_list[l2[1]] + fix_len(bin(int(l2[2][1:]))[2:]) + '\n'
-
-    elif l2[0] in op_3_reg_reg_list:
-        toggle_var_start = 0
-
-        if len(l2) != 3:
-            s2 = "Error on Line " + str(line_count) + ": General Syntax Error"
-            f2.write(s2)
-            return 12
-        
-        if l2[1] == 'FLAGS':
-            s2 = "Error on Line " + str(line_count) + ": Illegal use of FLAGS register"
-            f2.write(s2)
-            return 12
-
-        if l2[1] not in reg_list:
-            s2 = "Error on Line " + str(line_count) + ": Typo in Name of First Register \'" + l2[1] + "\'"
-            f2.write(s2)
-            return 12
-        
-        if l2[2] == 'FLAGS':
-            s2 = "Error on Line " + str(line_count) + ": Illegal use of FLAGS register"
-            f2.write(s2)
-            return 12
-
-        if l2[2] not in reg_list:
-            s2 = "Error on Line " + str(line_count) + ": Typo in Name of Second Register \'" + l2[2] + "\'"
-            f2.write(s2)
-            return 12
-        
-        main_string = main_string + op_3_reg_reg_list[l2[0]] + '00000' + reg_list[l2[1]] + reg_list[l2[2]] + '\n'
-
-    elif l2[0] in op_4_list:
-        toggle_var_start = 0
-
-        if len(l2) != 4:
-            s2 = "Error on Line " + str(line_count) + ": General Syntax Error"
-            f2.write(s2)
-            return 12
-        
-        if l2[1] == 'FLAGS':
-            s2 = "Error on Line " + str(line_count) + ": Illegal use of FLAGS register"
-            f2.write(s2)
-            return 12
-
-        if l2[1] not in reg_list:
-            s2 = "Error on Line " + str(line_count) + ": Typo in Name of First Register \'" + l2[1] + "\'"
-            f2.write(s2)
-            return 12
-        
-        if l2[2] == 'FLAGS':
-            s2 = "Error on Line " + str(line_count) + ": Illegal use of FLAGS register"
-            f2.write(s2)
-            return 12
-
-        if l2[2] not in reg_list:
-            s2 = "Error on Line " + str(line_count) + ": Typo in Name of Second Register \'" + l2[2] + "\'"
-            f2.write(s2)
-            return 12
-        
-        if l2[3] == 'FLAGS':
-            s2 = "Error on Line " + str(line_count) + ": Illegal use of FLAGS register"
-            f2.write(s2)
-            return 12
-
-        if l2[3] not in reg_list:
-            s2 = "Error on Line " + str(line_count) + ": Typo in Name of Third Register \'" + l2[3] + "\'"
-            f2.write(s2)
-            return 12
-        
-        main_string = main_string + op_4_list[l2[0]] + '00' + reg_list[l2[1]] + reg_list[l2[2]] + reg_list[l2[3]] + '\n'
-
-    elif l2[0] == 'mov':
-        toggle_var_start = 0
-
-        if len(l2) != 3:
-            s2 = "Error on Line " + str(line_count) + ": General Syntax Error"
-            f2.write(s2)
-            return 12
-        
-        if l2[1] == 'FLAGS':
-            s2 = "Error on Line " + str(line_count) + ": Illegal use of FLAGS register"
-            f2.write(s2)
-            return 12
-
-        if l2[1] not in reg_list:
-            s2 = "Error on Line " + str(line_count) + ": Typo in Name of First Register \'" + l2[1] + "\'"
-            f2.write(s2)
-            return 12
-
-        if l2[2] in reg_list:
-            main_string = main_string + '0001100000' + reg_list[l2[1]] + reg_list[l2[2]] + '\n'
-
-        else:
-            if l2[2].startswith('$'):
-                try:
-                    if not (0 <= int(l2[2][1:]) <= 127):
-                        s2 = "Error on Line " + str(line_count) + ": Illegal Immediate Value \'" + l2[2][1:] + "\'"
-                        f2.write(s2)
-                        return 12
-                
-                except:
-                    s2 = "Error on Line " + str(line_count) + ": General Syntax Error"
-                    f2.write(s2)
-                    return 12
-
-            else:
-                if l2[2] not in reg_list:
-                    s2 = "Error on Line " + str(line_count) + ": Typo in Name of Second Register \'" + l2[2] + "\'"
-                    f2.write(s2)
-                    return 12
-                
-            main_string = main_string + '000100' + reg_list[l2[1]] + fix_len(bin(int(l2[2][1:]))[2:]) + '\n'
-    
+#---------------------------------------------------
+def addition(reg1,reg2,reg3):
+    x=int(reg_list[reg2],2)
+    if int(reg_list[reg2],2)+int(reg_list[reg3],2) <= 65535:
+        reg_list[reg1] = fix_len(str(bin(int(reg_list[reg2],2)+int(reg_list[reg3],2))[2:]))
     else:
-        toggle_var_start = 0
-        s2 = "Error on Line " + str(line_count) + ": Typo in Instruction Name"
-        f2.write(s2)
-        return 12
-
-f1 = sys.stdin.readlines()
-f2 = sys.stdout
-
-line_count = 0
-
-var_list = {}
-instr_list = []
-label_list = {}
-opcode_list = ['add','sub','mov','ld','st','mul','div','rs','ls','xor','or','and','not','cmp','jmp','jlt','jgt','je','hlt']
-op_4_list = {'add':'00000','sub':'00001','mul':'00110','xor':'01010','or':'01011','and':'01100'}
-op_3_reg_reg_list = {'div':'00111','not':'01101','cmp':'01110'}
-op_3_reg_imm_list = {'rs':'01000','ls':'01001'}
-op_3_reg_mem_list = {'ld':'00100','st':'00101'}
-op_2_list = {'jmp':'01111','jlt':'11100','jgt':'11101','je':'11111'}
-reg_list = {'R0':'000','R1':'001','R2':'010','R3':'011','R4':'100','R5':'101','R6':'110','FLAGS':'111'}
-
-toggle_var_start = 33
-toggle_first_part = 33
-toggle_second_part = 33
-
-main_string = ''
-
-mem_address = -1
-
-for i in f1:
-    line_count+=1
-    i.replace('\t','')
-    if i.endswith('\n'):
-        s1 = i[:-1]
+        set_flags("V")
+        reg_list[reg1]="0000000000000000"
+def subtraction(reg1,reg2,reg3):
+    if int(reg_list[reg2],2)-int(reg_list[reg3],2) >= 0:
+        reg_list[reg1] = fix_len(str(bin(int(reg_list[reg2],2)-int(reg_list[reg3],2))[2:]))
     else:
-        s1 = i
-    l2 = s1.split()
-
-    if len(l2) >= 1:
-        if l2[0] != 'var':
-            mem_address +=1
-            
-        if l2[0].endswith(':'):
-            s3 = l2[0][:-1]
-            if s3 not in label_list:
-                label_list[s3] = fix_len(bin(mem_address)[2:])
-
-            else:
-                toggle_first_part = 0
-                s2 = "Error on Line " + str(line_count) + ": General Syntax Error"
-                f2.write(s2)
-                break
-
-
-
-if toggle_first_part == 33:
-    
-    line_count = 0
-
-    for i in f1:
-        line_count+=1
-        i.replace('\t','')
-        if i.endswith('\n'):
-            s1 = i[:-1]
-        else:
-            s1 = i
-        instr_list.append(s1)
-
-        l2 = s1.split()
-
-        try:
-            if l2[0].endswith(':'):
-                toggle_var_start = 0
-
-                i1 = file_analysis(l2[1:])
-                if i1 == 12:
-                    toggle_second_part = 0
-                    break
-                if i1 == 0:
-                    continue
-
-            else:
-                i1 = file_analysis(l2)
-                if i1 == 12:
-                    toggle_second_part = 0
-                    break
-                if i1 == 0:
-                    continue
-
-        except:
-            i1 = file_analysis(l2)
-            if i1 == 12:
-                toggle_second_part = 0
-                break
-            if i1 == 0:
-                continue
-
-
-
-
-instr_list = []
-
-
-for i in f1:
-    i.replace('\t','')
-    if i.endswith('\n'):
-        s1 = i[:-1]
+        set_flags("V")
+        reg_list[reg1]="0000000000000000"
+def multiplication(reg1,reg2,reg3):
+    if int(reg_list[reg2],2)*int(reg_list[reg3],2) <= 65535:
+        reg_list[reg1] = fix_len(str(bin(int(reg_list[reg2],2)*int(reg_list[reg3],2))[2:]))
     else:
-        s1 = i
-    instr_list.append(s1)
+        set_flags("V")
+        reg_list[reg1]="0000000000000000"
+def XOR(reg1,reg2,reg3):
+    reg_list[reg1] = binary_xor(reg_list[reg2],reg_list[reg3])
+def binary_xor(a, b):
+    result=[]
+    for i in range(16):
+        bit_a = int(a[i])
+        bit_b = int(b[i])
+        xor_result = bit_a ^ bit_b
+        result.append(str(xor_result))
+    return ''.join(result)
+def OR(reg1,reg2,reg3):
+    reg_list[reg1] = binary_or(reg_list[reg2],reg_list[reg3])
+def binary_or(a, b):
+    result=[]
+    for i in range(16):
+        bit_a = int(a[i])
+        bit_b = int(b[i])
+        xor_result = bit_a | bit_b
+        result.append(str(xor_result))
+    return ''.join(result)
+def AND(reg1,reg2,reg3):
+    reg_list[reg1] = binary_and(reg_list[reg2],reg_list[reg3])
+def binary_and(a, b):
+    result=[]
+    for i in range(16):
+        bit_a = int(a[i])
+        bit_b = int(b[i])
+        xor_result = bit_a & bit_b
+        result.append(str(xor_result))
+    return ''.join(result)
+#-------------------------------------------------
 
+def binary_to_integer(num):
+    return int(num,2)
+def int_to_bin(num):
+    bin2=bin(int(num))
+    k=str(bin2)
+    k=k[2:]
+    return k
+def moveri(reg1,imm):
+    reg_list[reg1] = fix_len(imm)
 
-line_count = len(instr_list)+1
-last_line_idx = 0
-instr_list.reverse()
-if toggle_first_part==33 and toggle_second_part==33:
-    for i in instr_list:
-        line_count-=1
-        l3 = i.split()
-        if l3 == []:
+#----------------------------------------
+def moverr(reg1,reg2):
+    reg_list[reg1] = reg_list[reg2]
+def div(reg1,reg2):
+    q,r = divmod(int(reg_list[reg1],2),int(reg_list[reg2],2))
+    if reg_list[reg2] != 0:
+        reg_list["000"] = fix_len(str(bin(q)[2:]))
+        reg_list["001"] = fix_len(str(bin(r)[2:]))
+    else:
+        set_flags("V")
+        reg_list["000"]="0000000000000000"
+        reg_list["001"]="0000000000000000"
+def invert(reg1,reg2):
+    reg_list[reg1] = fix_len(str(1111111111111111 - int(reg_list[reg2])))
+def compare(reg1,reg2):
+    if int(reg_list[reg1]) < int(reg_list[reg2]):
+        set_flags("L")
+    if int(reg_list[reg1]) > int(reg_list[reg2]):
+        set_flags("G")
+    if int(reg_list[reg1]) == int(reg_list[reg2]):
+        set_flags("E")
+#------------------------------------------------------------Z
+def ls(reg,imm):
+    dec_value = binary_to_integer(reg_list[reg])
+    imm = binary_to_integer(imm)
+    shifted_value = dec_value*(2**imm)
+    bin_value = int_to_bin(shifted_value)
+    r = fix_len(str(bin_value))
+    reg_list[reg] = r
+def rs(reg,imm):
+    dec_value = binary_to_integer(reg_list[reg])
+    imm = binary_to_integer(imm)
+    shifted_value = dec_value//(2**imm)
+    bin_value = int_to_bin(shifted_value)
+    r = fix_len(str(bin_value))
+    reg_list[reg] = r
+print([i for i in reg_list.values()])
+print([int(i,2) for i in reg_list.values()])
+
+running_function(0)
+
+def running_function(i):
+    for i in range(len(types)):
+        if types[i] == "A":
+            if commands[i] == "add":
+                addition(memory[i][0],memory[i][1],memory[i][2])
+            if commands[i] == "sub":
+                subtraction(memory[i][0],memory[i][1],memory[i][2])
+            if commands[i] == "mul":
+                multiplication(memory[i][0],memory[i][1],memory[i][2])
+            if commands[i] == "xor":
+                XOR(memory[i][0],memory[i][1],memory[i][2])
+            if commands[i] == "or":
+                OR(memory[i][0],memory[i][1],memory[i][2])
+            if commands[i] == "and":
+                AND(memory[i][0],memory[i][1],memory[i][2])
+        if types[i] == "B":
+            if commands[i] == "mov":
+                moveri(memory[i][0],memory[i][1])
+            if commands[i] == "rs":
+                rs(memory[i][0],memory[i][1])
+            if commands[i] == "ls":
+                ls(memory[i][0],memory[i][1])
+        if types[i] == "C":
+            if commands[i] == "mov":
+                moverr(memory[i][0],memory[i][1])
+            if commands[i] == "div":
+                div(memory[i][0],memory[i][1])
+            if commands[i] == "cmp":
+                compare(memory[i][0],memory[i][1])
+            if commands[i] == "not":
+                invert(memory[i][0],memory[i][1])
+        if types[i] == "D":
             continue
-
-        else:
-            last_line_idx = line_count
-
-        if len(l3)==2:
-            if l3[1] != 'hlt':
-                
-                s2 = "Error on Line " + str(line_count) + ": Missing Hlt Instruction"
-                toggle_second_part = 0
-                f2.write(s2)
-                
+        if types[i] == "E":
+            if commands[i]=="jmp":
+                running_function(binary_to_integer(memory[i][0]))
+            if commands[i]=="jgt":
+                if reg_list["111"] = "0000000000000010":
+                    running_function(binary_to_integer(memory[i][0]))
+            if commands[i]=="jlt":
+                if reg_list["111"] = "0000000000000100":
+                    running_function(binary_to_integer(memory[i][0]))
+            continue
+        if types[i] == "F":
             break
-
-        elif len(l3)==1:
-            if l3[0] != 'hlt':
-                
-                s2 = "Error on Line " + str(line_count) + ": Missing Hlt Instruction"
-                toggle_second_part = 0
-                f2.write(s2)
-                
-            break
-
-        else:
-            
-            s2 = "Error on Line " + str(line_count) + ": Missing Hlt Instruction"
-            toggle_second_part = 0
-            f2.write(s2)
-            
-        break
-
-    instr_list.reverse()
-    for i in range(1,len(instr_list)+1):
-        l3 = instr_list[i-1].split()
-        
-        if i == last_line_idx:
-            break
-
-        if len(l3) == 2:
-            if l3[0].endswith(":"):
-                if l3[1] == 'hlt':
-                    
-                    toggle_second_part = 0
-                    s2 = "Error on Line " + str(i) + ": Hlt not being used as the last instruction"
-                    f2.write(s2)
-                    
-                    break
-
-        if len(l3) == 1:
-            if l3[0] == 'hlt':
-                
-                toggle_second_part = 0
-                s2 = "Error on Line " + str(i) + ": Hlt not being used as the last instruction"
-                f2.write(s2)
-                
-                break
-
-if toggle_first_part==33 and toggle_second_part==33:
-    main_string = main_string + '1101000000000000'
-    
-    f2.write(main_string)
-    toggle_second_part=0
-
-    
-if toggle_first_part==33 and toggle_second_part==33:
-    if mem_address >= 128:
-        
-        f2.write("Error on Line 129: More than 128 Memory Addresses")
+print([i for i in reg_list.values()])
+print([int(i,2) for i in reg_list.values()])

@@ -179,7 +179,7 @@ def set_flags(x):
 #---------------------------------------------------
 def addition(reg1,reg2,reg3):
     x=int(reg_list[reg2],2)
-    if int(reg_list[reg2],2)+int(reg_list[reg3],2) <= 65535:
+    if int(reg_list[reg2],2)+int(reg_list[reg3],2) <= 127:
         reg_list[reg1] = fix_len(str(bin(int(reg_list[reg2],2)+int(reg_list[reg3],2))[2:]))
     else:
         set_flags("V")
@@ -194,7 +194,7 @@ def subtraction(reg1,reg2,reg3):
         set_flags("V")
         reg_list[reg1]="0000000000000000"
 def multiplication(reg1,reg2,reg3):
-    if int(reg_list[reg2],2)*int(reg_list[reg3],2) <= 65535:
+    if int(reg_list[reg2],2)*int(reg_list[reg3],2) <= 127:
         reg_list[reg1] = fix_len(str(bin(int(reg_list[reg2],2)*int(reg_list[reg3],2))[2:]))
     else:
         set_flags("V")

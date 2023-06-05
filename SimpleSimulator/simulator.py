@@ -179,7 +179,7 @@ def set_flags(x):
 #---------------------------------------------------
 def addition(reg1,reg2,reg3):
     x=int(reg_list[reg2],2)
-    if int(reg_list[reg2],2)+int(reg_list[reg3],2) <= 127:
+    if int(reg_list[reg2],2)+int(reg_list[reg3],2) <= 65535:
         reg_list[reg1] = fix_len(str(bin(int(reg_list[reg2],2)+int(reg_list[reg3],2))[2:]))
     else:
         set_flags("V")
@@ -194,7 +194,7 @@ def subtraction(reg1,reg2,reg3):
         set_flags("V")
         reg_list[reg1]="0000000000000000"
 def multiplication(reg1,reg2,reg3):
-    if int(reg_list[reg2],2)*int(reg_list[reg3],2) <= 127:
+    if int(reg_list[reg2],2)*int(reg_list[reg3],2) <= 65535:
         reg_list[reg1] = fix_len(str(bin(int(reg_list[reg2],2)*int(reg_list[reg3],2))[2:]))
     else:
         set_flags("V")
@@ -330,7 +330,7 @@ halted= False
 while(halted==False):
     
     if types[pc] == "A":
-        
+        setflag=False
         fl=False
         for m in memory[pc]:
             if m=="111":
@@ -343,21 +343,38 @@ while(halted==False):
             rand(memory[pc][0],memory[pc][1],memory[pc][2])
         if commands[pc] == "addf":
             addf(memory[pc][0],memory[pc][1],memory[pc][2])
+            if reg_list['111']!='0000000000000000':
+                fl=True
+                setflag=True
         if commands[pc] == "add":
             addition(memory[pc][0],memory[pc][1],memory[pc][2])
+            if reg_list['111']!='0000000000000000':
+                fl=True
+                setflag=True
         if commands[pc] == "sub":
             subtraction(memory[pc][0],memory[pc][1],memory[pc][2])
+            if reg_list['111']!='0000000000000000':
+                fl=True
+                setflag=True
         if commands[pc] == "subf":
             subf(memory[pc][0],memory[pc][1],memory[pc][2])
+            if reg_list['111']!='0000000000000000':
+                fl=True
+                setflag=True
         if commands[pc] == "mul":
             multiplication(memory[pc][0],memory[pc][1],memory[pc][2])
+            if reg_list['111']!='0000000000000000':
+                fl=True
+                setflag=True
         if commands[pc] == "xor":
             XOR(memory[pc][0],memory[pc][1],memory[pc][2])
         if commands[pc] == "or":
             OR(memory[pc][0],memory[pc][1],memory[pc][2])
         if commands[pc] == "and":
             AND(memory[pc][0],memory[pc][1],memory[pc][2])
-        fl=False
+        if setflag==False:
+            fl=False
+        
         if types[pc+1]!="E":
             for m in memory[pc+1]:
                 if m=="111":
@@ -381,6 +398,7 @@ while(halted==False):
         if commands[pc]=="rotate":
             rotate(memory[pc][0],memory[pc][1])
         fl=False
+        
         if types[pc+1]!="E":
             for m in memory[pc+1]:
                 if m=="111":
@@ -388,6 +406,7 @@ while(halted==False):
             if fl==False:
                 reg_list["111"]='0000000000000000'
     if types[pc] == "C":
+        setflag=False
         fl=False
         for m in memory[pc]:
             if m=="111":
@@ -398,6 +417,9 @@ while(halted==False):
             moverr(memory[pc][0],memory[pc][1])
         if commands[pc] == "div":
             div(memory[pc][0],memory[pc][1])
+            if reg_list['111']!='0000000000000000':
+                fl=True
+                setflag=True
         if commands[pc] == "cmp":
             compare(memory[pc][0],memory[pc][1])
         if commands[pc] == "not":
@@ -408,13 +430,16 @@ while(halted==False):
             floor(memory[pc][0],memory[pc][1])
         if commands[pc] == "swap":
             swap(memory[pc][0],memory[pc][1])
-        fl=False
+        if setflag==False:
+            fl=False
+        
         if types[pc+1]!="E":
             for m in memory[pc+1]:
                 if m=="111":
                     fl=True
             if fl==False:
                 reg_list["111"]='0000000000000000'
+    
     if types[pc] == "D":
         fl=False
         for m in memory[pc]:
@@ -432,6 +457,7 @@ while(halted==False):
             
             reg_list[memory[pc][0]] = memaddrvalues[memory[pc][1]]
         fl=False
+        
         if types[pc+1]!="E":
             for m in memory[pc+1]:
                 if m=="111":
@@ -450,6 +476,7 @@ while(halted==False):
         if commands[pc]=="mov":
             movf(memory[i][0],memory[i][1])
         fl=False
+        
         if types[pc+1]!="E":
             for m in memory[pc+1]:
                 if m=="111":

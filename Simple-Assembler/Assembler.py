@@ -1,4 +1,5 @@
 import sys
+
 def fix_len(s1):
     if len(s1) >= 8:
         return s1
@@ -11,6 +12,59 @@ def fix_len(s1):
         s1 = '0' + s1
 
     return s1
+
+def fix_len_part2(s1,n):
+    s1 = str(s1)
+
+    if len(s1)>=n+1:
+        return s1
+    
+    if len(s1)==n:
+        return s1
+    
+    while len(s1)!=n:
+        s1 = '0' + s1
+
+    return s1
+
+def convert_float(s1):
+    num = float(s1)
+    num = (str(num))[2:]
+    count = -1
+    sum = 0
+
+    for i in num:
+        sum += int(i)*(2**count)
+        count -= 1
+
+    return str(sum)
+
+dict1 = {}
+
+def make_float_list(dict1):
+    s1 = '1.'
+    for a in ['0','1']:
+        for b in ['0','1']:
+            for c in ['0','1']:
+                for d in ['0','1']:
+                    for e in ['0','1']:
+                        s2 = s1 + a + b + c + d + e
+                        s3 = convert_float(s2)
+                        s3 = float(s3)
+                        s3 = s3 + 1
+                        s3 = round(s3,5)
+                        for f in range(-3,5):
+                            i1 = s3 * (2**f)
+                            i1 = round(i1,8)
+
+                            l2  = []
+                            l2.append(s2[2:])
+                            f = bin(f+3)[2:]
+                            l2.append(fix_len_part2(f,3))
+                            i1 = str(i1)
+                            dict1[i1] = l2
+
+make_float_list(dict1)
 
 def file_analysis(l2):
     global main_string
@@ -265,6 +319,43 @@ def file_analysis(l2):
                 
             main_string = main_string + '000100' + reg_list[l2[1]] + fix_len(bin(int(l2[2][1:]))[2:]) + '\n'
     
+    elif l2[0] == 'movf':
+        toggle_var_start = 0
+
+        if len(l2) != 3:
+            s2 = "Error on Line " + str(line_count) + ": General Syntax Error"
+            f2.write(s2)
+            return 12
+        
+        if l2[1] == 'FLAGS':
+            s2 = "Error on Line " + str(line_count) + ": Illegal use of FLAGS register"
+            f2.write(s2)
+            return 12
+
+        if l2[1] not in reg_list:
+            s2 = "Error on Line " + str(line_count) + ": Typo in Name of First Register \'" + l2[1] + "\'"
+            f2.write(s2)
+            return 12
+        
+        if l2[2].startswith('$'):
+            try:
+                if not (str(float(l2[2][1:])) in dict1):
+                    s2 = "Error on Line " + str(line_count) + ": Illegal Immediate Value \'" + l2[2][1:] + "\'"
+                    f2.write(s2)
+                    return 12
+            
+            except:
+                s2 = "Error on Line " + str(line_count) + ": Illegal Immediate Value \'" + l2[2][1:] + "\'"
+                f2.write(s2)
+                return 12
+            
+        else:
+            s2 = "Error on Line " + str(line_count) + ": Not Starting with '$'"
+            f2.write(s2)
+            return 12
+            
+        main_string = main_string + '10010' + reg_list[l2[1]] + dict1[str(float(l2[2][1:]))][1] + dict1[str(float(l2[2][1:]))][0] + '\n'
+        
     else:
         toggle_var_start = 0
         s2 = "Error on Line " + str(line_count) + ": Typo in Instruction Name"
@@ -279,10 +370,10 @@ line_count = 0
 var_list = {}
 instr_list = []
 label_list = {}
-opcode_list = ['add','sub','mov','ld','st','mul','div','rs','ls','xor','or','and','not','cmp','jmp','jlt','jgt','je','hlt']
-op_4_list = {'add':'00000','sub':'00001','mul':'00110','xor':'01010','or':'01011','and':'01100'}
-op_3_reg_reg_list = {'div':'00111','not':'01101','cmp':'01110'}
-op_3_reg_imm_list = {'rs':'01000','ls':'01001'}
+opcode_list = ['add','sub','mov','ld','st','mul','div','rs','ls','xor','or','and','not','cmp','jmp','jlt','jgt','je','hlt','addf','subf','movf','rand','swap','ceil','floor','rot']
+op_4_list = {'add':'00000','sub':'00001','mul':'00110','xor':'01010','or':'01011','and':'01100','addf':'10000','subf':'10001','rand':'10111'}
+op_3_reg_reg_list = {'div':'00111','not':'01101','cmp':'01110','swap':'10011','ceil':'10101','floor':'10110'}
+op_3_reg_imm_list = {'rs':'01000','ls':'01001','rot':'10100'}
 op_3_reg_mem_list = {'ld':'00100','st':'00101'}
 op_2_list = {'jmp':'01111','jlt':'11100','jgt':'11101','je':'11111'}
 reg_list = {'R0':'000','R1':'001','R2':'010','R3':'011','R4':'100','R5':'101','R6':'110','FLAGS':'111'}

@@ -27,44 +27,103 @@ def fix_len_part2(s1,n):
 
     return s1
 
-def convert_float(s1):
-    num = float(s1)
-    num = (str(num))[2:]
-    count = -1
-    sum = 0
+def convert_decimalpt_to_bin(number, precision):
+    str1 = ''
+    count = 0
+    while 1:
+        count += 1
+        number = round(number*2,8)
+        if number > 1:
+            str1 = str1 + '1'
+            number-=1
+        elif number < 1:
+            str1 = str1 + '0'
+        else:
+            str1 = str1 + '1'
+            return str1
 
-    for i in num:
-        sum += int(i)*(2**count)
-        count -= 1
+        if count==precision:
+            return str1
 
-    return str(sum)
+def convert_float_to_binary(n):
+    n0 = float(n)
+    n1 = str(n0)
+    n2 = ''
+    count = 0
+    while(1):
+        if n1[count]!='.':
+            n2 = n2 + n1[count]
+        else:
+            break
+        count+=1
 
-dict1 = {}
+    n2 = int(n2)
+    n3 = round(n0-n2,8)
 
-def make_float_list(dict1):
-    s1 = '1.'
-    for a in ['0','1']:
-        for b in ['0','1']:
-            for c in ['0','1']:
-                for d in ['0','1']:
-                    for e in ['0','1']:
-                        s2 = s1 + a + b + c + d + e
-                        s3 = convert_float(s2)
-                        s3 = float(s3)
-                        s3 = s3 + 1
-                        s3 = round(s3,5)
-                        for f in range(-3,5):
-                            i1 = s3 * (2**f)
-                            i1 = round(i1,8)
+    n4 = bin(n2)[2:]
+    main_str = n4 + '.' + convert_decimalpt_to_bin(n3,10)
 
-                            l2  = []
-                            l2.append(s2[2:])
-                            f = bin(f+3)[2:]
-                            l2.append(fix_len_part2(f,3))
-                            i1 = str(i1)
-                            dict1[i1] = l2
+    for i in range(len(main_str)):
+        if main_str[i] == '1':
+            n5 = i
+            break
 
-make_float_list(dict1)
+    for i in range(len(main_str)): 
+        if main_str[i] == '.':
+            n6 = i
+            break
+    if n6 == n5 + 1:
+        pass
+
+    else:
+        str2 = ''
+        if n6 < n5:
+            exponent = n6-n5
+            str2 = str2 + main_str[n5] + '.'
+            count2 = 0
+            for i in range(n5+1,len(main_str)):
+                str2 = str2 + main_str[i]
+                count2+=1
+                if(count2==5):
+                    break
+
+            while count2 != 5 and count2 <=5:
+                str2 = str2 + '0'
+                count2+=1
+
+            exponent+=3
+            s3 = bin(exponent)[2:]
+            s3 = fix_len_part2(s3,3)
+
+            l1 = []
+            l1.append(s3)
+            l1.append(str2[2:])
+            return l1
+        
+        elif n5 < n6:
+            exponent = n6-n5-1
+            str2 = str2 + main_str[n5] + '.'
+            count3 = 0
+            for i in range(n5+1,n6):
+                str2 = str2 + main_str[i]
+                count3+=1
+                if count3 == 5:
+                    break
+
+            for i in range(n6+1,len(main_str)):
+                if(count3==5):
+                    break
+                str2 = str2 + main_str[i]
+                count3+=1
+
+            exponent+=3
+            s3 = bin(exponent)[2:]
+            s3 = fix_len_part2(s3,3)
+
+            l1 = []
+            l1.append(s3)
+            l1.append(str2[2:])
+            return l1
 
 def file_analysis(l2):
     global main_string
@@ -339,7 +398,7 @@ def file_analysis(l2):
         
         if l2[2].startswith('$'):
             try:
-                if not (str(float(l2[2][1:])) in dict1):
+                if float(l2[2][1:]) < 0.125 or float(l2[2][1:]) > 31.5:
                     s2 = "Error on Line " + str(line_count) + ": Illegal Immediate Value \'" + l2[2][1:] + "\'"
                     f2.write(s2)
                     return 12
@@ -354,7 +413,7 @@ def file_analysis(l2):
             f2.write(s2)
             return 12
             
-        main_string = main_string + '10010' + reg_list[l2[1]] + dict1[str(float(l2[2][1:]))][1] + dict1[str(float(l2[2][1:]))][0] + '\n'
+        main_string = main_string + '10010' + reg_list[l2[1]] + convert_float_to_binary(str(float(l2[2][1:])))[0] + convert_float_to_binary(str(float(l2[2][1:])))[1] + '\n'
         
     else:
         toggle_var_start = 0

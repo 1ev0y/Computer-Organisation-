@@ -73,7 +73,27 @@ def convert_float_to_binary(n):
             n6 = i
             break
     if n6 == n5 + 1:
-        pass
+        str2 = ''
+        str2 = str2 + main_str[n5] + '.'
+        count4 = 0
+        for i in range(n6+1,len(main_str)):
+            str2 = str2 + main_str[i]
+            count4+=1
+            exponent = 3
+            if(count4==5):
+                break
+
+        while count4 != 5 and count4 <=5:
+            str2 = str2 + '0'
+            count4+=1
+
+        s3 = bin(exponent)[2:]
+        s3 = fix_len_part2(s3,3)
+
+        l1 = []
+        l1.append(s3)
+        l1.append(str2[2:])
+        return l1
 
     else:
         str2 = ''
@@ -114,6 +134,10 @@ def convert_float_to_binary(n):
                 if(count3==5):
                     break
                 str2 = str2 + main_str[i]
+                count3+=1
+
+            while count3 != 5 and count3 <=5:
+                str2 = str2 + '0'
                 count3+=1
 
             exponent+=3

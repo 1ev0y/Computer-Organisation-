@@ -179,7 +179,7 @@ def set_flags(x):
 #---------------------------------------------------
 def addition(reg1,reg2,reg3):
     x=int(reg_list[reg2],2)
-    if int(reg_list[reg2],2)+int(reg_list[reg3],2) <= 127:
+    if int(reg_list[reg2],2)+int(reg_list[reg3],2) <= 65535:
         reg_list[reg1] = fix_len(str(bin(int(reg_list[reg2],2)+int(reg_list[reg3],2))[2:]))
     else:
         set_flags("V")
@@ -194,7 +194,7 @@ def subtraction(reg1,reg2,reg3):
         set_flags("V")
         reg_list[reg1]="0000000000000000"
 def multiplication(reg1,reg2,reg3):
-    if int(reg_list[reg2],2)*int(reg_list[reg3],2) <= 127:
+    if int(reg_list[reg2],2)*int(reg_list[reg3],2) <= 65535:
         reg_list[reg1] = fix_len(str(bin(int(reg_list[reg2],2)*int(reg_list[reg3],2))[2:]))
     else:
         set_flags("V")
@@ -245,8 +245,9 @@ def moveri(reg1,imm):
 def moverr(reg1,reg2):
     reg_list[reg1] = reg_list[reg2]
 def div(reg1,reg2):
-    q,r = divmod(int(reg_list[reg1],2),int(reg_list[reg2],2))
-    if reg_list[reg2] != 0:
+    
+    if int(reg_list[reg2]) != 0:
+        q,r = divmod(int(reg_list[reg1],2),int(reg_list[reg2],2))
         reg_list["000"] = fix_len(str(bin(q)[2:]))
         reg_list["001"] = fix_len(str(bin(r)[2:]))
     else:
@@ -289,8 +290,10 @@ def addf(reg1,reg2,reg3):
     x=round(dict1[reg_list[reg2]]+dict1[reg_list[reg3]],9)
     if x in dict1:
         dict1[reg_list[reg1]]=x
-    else:
+    elif x>31.5:
         set_flags("V")
+        reg_list[reg1]="0000000000000000"
+    else:
         reg_list[reg1]="0000000000000000"
     
 def subf(reg1,reg2,reg3):

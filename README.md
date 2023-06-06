@@ -2,7 +2,7 @@
 
 This is the project done by Group No. A25. It includes a fully functional assembler and a simulator that work for floating point numbers as well. We also have implemented 5 bonus functions, the opcodes/functionalities of which are mentioned below.
 
-1)  Instruction :- swap,  
+1)  Instruction :- swap  
     Opcode      :- 10011,
     Syntax      :- swap reg1 reg2,
     Type        :- C,

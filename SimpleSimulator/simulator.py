@@ -458,15 +458,18 @@ def floor(r1,r2):
 def ceil (r1,r2):
     reg_list[r1] = int_to_bin(int(binary_to_integer(reg_list[r2]))+1)
 
-def rotate(reg_value , n):
+def rotate(reg_value ,n):
+    n = int(n,2)
     copy = reg_list[reg_value]
     if n == 0:
         return 
-    elif n > 0:
-        for i in range(n,len(copy)):
-            reg_list[reg_value][i] = copy[i-n]
-        for i in range(n):
-            reg_list[reg_value][i] = copy[i+(len(copy) - n)]
+    dumlst = [0 for i in range(16)]
+    for i in range(n,len(copy)):
+        dumlst[i] = copy[i-n]
+    for i in range(n):
+        dumlst[i] = copy[i+(len(copy) - n)]
+    vals = ''.join(dumlst)
+    reg_list[reg_value] = vals
 
 
 #--------------------------------------------------------------------------------------

@@ -327,7 +327,7 @@ def rand(reg1,reg2,reg3):
     r=random.randint(int(reg_list[reg2]),int(reg_list[reg3]))
     binr=bin(r)
     binr=binr[2:]
-    reg_list[reg1]=fix_len(str(binr))
+    reg_list[reg1]=fix_len_part2((str(binr)),7)
 
 def subtraction(reg1,reg2,reg3):
     if int(reg_list[reg2],2)-int(reg_list[reg3],2) >= 0:

@@ -324,10 +324,13 @@ def addition(reg1,reg2,reg3):
         set_flags("V")
         reg_list[reg1]="0000000000000000"
 def rand(reg1,reg2,reg3):
-    r=random.randint(int(reg_list[reg2]),int(reg_list[reg3]))
-    binr=bin(r)
-    binr=binr[2:]
-    reg_list[reg1]=fix_len_part2((str(binr)),7)
+    # reg_list[reg1]=fix_len(str(bin(random.randint(int(reg_list[reg2]),int(reg_list[reg3])))[2:]))
+    ll = int(reg_list[reg2],2)
+    ul = int(reg_list[reg3],2)
+    num = random.randint(ll,ul)
+    binf = str(bin(num))
+    binf = binf[2:]
+    reg_list[reg1] = binf
 
 def subtraction(reg1,reg2,reg3):
     if int(reg_list[reg2],2)-int(reg_list[reg3],2) >= 0:

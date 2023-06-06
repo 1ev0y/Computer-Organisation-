@@ -1,0 +1,15 @@
+var xyz
+var abc
+var a
+var b
+var c
+mov R3 $36
+mov R2 $97
+st R3 xyz
+st R3 abc
+st R3 a
+st R2 b
+st R2 c
+swap R2 R3
+rand R1 R2 R3
+hlt

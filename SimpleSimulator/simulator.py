@@ -45,6 +45,127 @@ def fix_len_part2(s1,n):
         s1 = '0' + s1
 
     return s1
+def convert_decimalpt_to_bin(number, precision):
+    str1 = ''
+    count = 0
+    while 1:
+        count += 1
+        number = round(number*2,8)
+        if number > 1:
+            str1 = str1 + '1'
+            number-=1
+        elif number < 1:
+            str1 = str1 + '0'
+        else:
+            str1 = str1 + '1'
+            return str1
+
+        if count==precision:
+            return str1
+
+def convert_float_to_binary(n):
+    n0 = float(n)
+    n1 = str(n0)
+    n2 = ''
+    count = 0
+    while(1):
+        if n1[count]!='.':
+            n2 = n2 + n1[count]
+        else:
+            break
+        count+=1
+
+    n2 = int(n2)
+    n3 = round(n0-n2,8)
+
+    n4 = bin(n2)[2:]
+    main_str = n4 + '.' + convert_decimalpt_to_bin(n3,10)
+
+    for i in range(len(main_str)):
+        if main_str[i] == '1':
+            n5 = i
+            break
+
+    for i in range(len(main_str)): 
+        if main_str[i] == '.':
+            n6 = i
+            break
+    if n6 == n5 + 1:
+        str2 = ''
+        str2 = str2 + main_str[n5] + '.'
+        count4 = 0
+        for i in range(n6+1,len(main_str)):
+            str2 = str2 + main_str[i]
+            count4+=1
+            exponent = 3
+            if(count4==5):
+                break
+
+        while count4 != 5 and count4 <=5:
+            str2 = str2 + '0'
+            count4+=1
+
+        s3 = bin(exponent)[2:]
+        s3 = fix_len_part2(s3,3)
+
+        l1 = []
+        l1.append(s3)
+        l1.append(str2[2:])
+        return l1
+
+    else:
+        str2 = ''
+        if n6 < n5:
+            exponent = n6-n5
+            str2 = str2 + main_str[n5] + '.'
+            count2 = 0
+            for i in range(n5+1,len(main_str)):
+                str2 = str2 + main_str[i]
+                count2+=1
+                if(count2==5):
+                    break
+
+            while count2 != 5 and count2 <=5:
+                str2 = str2 + '0'
+                count2+=1
+
+            exponent+=3
+            s3 = bin(exponent)[2:]
+            s3 = fix_len_part2(s3,3)
+
+            l1 = []
+            l1.append(s3)
+            l1.append(str2[2:])
+            return l1
+        
+        elif n5 < n6:
+            exponent = n6-n5-1
+            str2 = str2 + main_str[n5] + '.'
+            count3 = 0
+            for i in range(n5+1,n6):
+                str2 = str2 + main_str[i]
+                count3+=1
+                if count3 == 5:
+                    break
+
+            for i in range(n6+1,len(main_str)):
+                if(count3==5):
+                    break
+                str2 = str2 + main_str[i]
+                count3+=1
+
+            while count3 != 5 and count3 <=5:
+                str2 = str2 + '0'
+                count3+=1
+
+            exponent+=3
+            s3 = bin(exponent)[2:]
+            s3 = fix_len_part2(s3,3)
+
+            l1 = []
+            l1.append(s3)
+            l1.append(str2[2:])
+            return l1
 
 def convert_float(s1):
     num = float(s1)
@@ -57,6 +178,23 @@ def convert_float(s1):
         count -= 1
 
     return str(sum)
+
+def convert_binary_to_float(l):
+    integer=l[0]
+    decimal=l[1]
+    i=0
+    d=0
+    for l in range(len(integer)):
+        i+=(int(integer[l]))*2**(len(integer)-l-1)
+    
+    for l in range(len(decimal)):
+        d+=(int(decimal[l]))*2**(-(l+1))
+
+    ir=2**(i-3)*(1+d)
+    
+    return ir
+
+'''
 
 dict1 = {}
 
@@ -84,6 +222,7 @@ def make_float_list(dict1):
                             dict1[i1] = l2
 
 make_float_list(dict1)
+'''
 
 #-------------------------------------------------------------------
 opcodes=[]
@@ -179,13 +318,16 @@ def set_flags(x):
 #---------------------------------------------------
 def addition(reg1,reg2,reg3):
     x=int(reg_list[reg2],2)
-    if int(reg_list[reg2],2)+int(reg_list[reg3],2) <= 65535:
+    if int(reg_list[reg2],2)+int(reg_list[reg3],2) <= 127:
         reg_list[reg1] = fix_len(str(bin(int(reg_list[reg2],2)+int(reg_list[reg3],2))[2:]))
     else:
         set_flags("V")
         reg_list[reg1]="0000000000000000"
 def rand(reg1,reg2,reg3):
-    reg_list[reg1]=fix_len(str(bin(random.randint(int(reg_list[reg2]),int(reg_list[reg3])))[2:]))
+    r=random.randint(int(reg_list[reg2]),int(reg_list[reg3]))
+    binr=bin(r)
+    binr=binr[2:]
+    reg_list[reg1]=fix_len(str(binr))
 
 def subtraction(reg1,reg2,reg3):
     if int(reg_list[reg2],2)-int(reg_list[reg3],2) >= 0:
@@ -194,7 +336,7 @@ def subtraction(reg1,reg2,reg3):
         set_flags("V")
         reg_list[reg1]="0000000000000000"
 def multiplication(reg1,reg2,reg3):
-    if int(reg_list[reg2],2)*int(reg_list[reg3],2) <= 65535:
+    if int(reg_list[reg2],2)*int(reg_list[reg3],2) <= 127:
         reg_list[reg1] = fix_len(str(bin(int(reg_list[reg2],2)*int(reg_list[reg3],2))[2:]))
     else:
         set_flags("V")
@@ -245,9 +387,8 @@ def moveri(reg1,imm):
 def moverr(reg1,reg2):
     reg_list[reg1] = reg_list[reg2]
 def div(reg1,reg2):
-    
-    if int(reg_list[reg2]) != 0:
-        q,r = divmod(int(reg_list[reg1],2),int(reg_list[reg2],2))
+    q,r = divmod(int(reg_list[reg1],2),int(reg_list[reg2],2))
+    if reg_list[reg2] != 0:
         reg_list["000"] = fix_len(str(bin(q)[2:]))
         reg_list["001"] = fix_len(str(bin(r)[2:]))
     else:
@@ -283,26 +424,25 @@ def rs(reg,imm):
 
 #-------------------------------------------------------------------
 def movf(reg,immediateval):
-    reg_list[reg]=immediateval
+    reg_list[reg]=convert_float_to_binary(immediateval)[0]+convert_float_to_binary(immediateval)[1]
     
 
 def addf(reg1,reg2,reg3):
-    x=round(dict1[reg_list[reg2]]+dict1[reg_list[reg3]],9)
-    if x in dict1:
-        dict1[reg_list[reg1]]=x
-    elif x>31.5:
+    x=round(convert_binary_to_float(reg_list[reg2])+convert_binary_to_float(reg_list[reg3]),9)
+    
+    if x>31.5:
         set_flags("V")
         reg_list[reg1]="0000000000000000"
     else:
-        reg_list[reg1]="0000000000000000"
+        reg_list[reg1]=convert_float_to_binary(x)[0]+convert_float_to_binary(x)[1]
     
 def subf(reg1,reg2,reg3):
-    x=round(dict1[reg_list[reg2]]-dict1[reg_list[reg3]],8)
-    if x<0 or (x not in dict1):
+    x=round(convert_binary_to_float(reg_list[reg2])-convert_binary_to_float(reg_list[reg3]),8)
+    if x<0:
         set_flags("V")
         reg_list[reg1]="0000000000000000"
     else:
-        dict1[reg_list[reg1]]=x
+        reg_list[reg1]=convert_float_to_binary(x)[0]+convert_float_to_binary(x)[1]
 
 def swap(r1,r2):
     dummy = reg_list[r2]

@@ -623,7 +623,7 @@ while(halted==False):
         if fl==False:
             reg_list["111"]='0000000000000000'
         if commands[pc]=="mov":
-            movf(memory[i][0],memory[i][1])
+            movf(memory[pc][0],memory[pc][1])
         fl=False
         
         if types[pc+1]!="E":

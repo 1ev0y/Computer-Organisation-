@@ -456,10 +456,14 @@ def swap(r1,r2):
     reg_list[r1] = dummy
 
 def floor(r1,r2):
-    reg_list[r1] = int_to_bin(int(binary_to_integer(reg_list[r2])))
+    i1=[reg_list[r2][0:3],reg_list[r2][3:]]
+    
+    reg_list[r1] = bin(int(convert_binary_to_float(i1)))[2:]
+    
 
 def ceil (r1,r2):
-    reg_list[r1] = int_to_bin(int(binary_to_integer(reg_list[r2]))+1)
+    i1=[reg_list[r2][0:3],reg_list[r2][3:]]
+    reg_list[r1] = bin(int(convert_binary_to_float(i1))+1)[2:]
 
 def rotate(reg_value ,n):
     n = int(n,2)

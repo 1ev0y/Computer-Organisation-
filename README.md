@@ -30,7 +30,7 @@ This is the project done by Group No. A25. It includes a fully functional assemb
     Opcode      :- 10111  
     Syntax      :- rand reg1 reg2 reg3  
     Type        :- A  
-    Semantics   :- Finds a random integer between reg2 and reg3(both included) and places it in reg1
+    Semantics   :- Finds a random integer between reg2 and reg3(both included), where reg2 <= reg3 and places it in reg1
 
 Some Notes for the TAs for Assembler:-
 

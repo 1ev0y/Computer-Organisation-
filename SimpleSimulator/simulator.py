@@ -427,8 +427,7 @@ def rs(reg,imm):
 
 #-------------------------------------------------------------------
 def movf(reg,immediateval):
-    reg_list[reg]=convert_float_to_binary(immediateval)[0]+convert_float_to_binary(immediateval)[1]
-    
+    reg_list[reg]=immediateval
 
 def addf(reg1,reg2,reg3):
     x=round(convert_binary_to_float(reg_list[reg2])+convert_binary_to_float(reg_list[reg3]),9)

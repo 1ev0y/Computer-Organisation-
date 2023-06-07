@@ -1,0 +1,16 @@
+var abc
+var cde
+var def
+mov R0 $34
+label1: movf R3 $12.97
+movf R2 $11.56
+mov R1 R0
+mov R0 $10
+
+jgt label1
+
+ceil R6 R3
+floor R5 R2
+rot R1 $6
+
+hlt

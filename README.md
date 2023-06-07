@@ -12,13 +12,13 @@ This is the project done by Group No. A25. It includes a fully functional assemb
     Opcode      :- 10101  
     Syntax      :- ceil reg1 reg2  
     Type        :- C  
-    Semantics   :- Takes the value of reg2 and computes its ceil into reg1  
+    Semantics   :- Takes the value of reg2 and computes its ceil into reg1 (reg2 has to be a float)  
 
 3)  Instruction :- floor  
     Opcode      :- 10110  
     Syntax      :- floor reg1 reg2  
     Type        :- C  
-    Semantics   :- Takes the value of reg2 and computes its floor into reg1  
+    Semantics   :- Takes the value of reg2 and computes its floor into reg1 (reg2 has to be a float)  
 
 4)  Instruction :- rot  
     Opcode      :- 10100  

@@ -1,0 +1,9 @@
+movf R1 $1.5
+movf R0 $1.75
+cmp R1 R0
+jgt label2
+ceil R2 R1
+jlt label1
+label2: subf R4 R1 R0
+label1: addf R5 R1 R0
+hlt

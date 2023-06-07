@@ -430,7 +430,9 @@ def movf(reg,immediateval):
     reg_list[reg]=immediateval
 
 def addf(reg1,reg2,reg3):
-    x=round(convert_binary_to_float(reg_list[reg2])+convert_binary_to_float(reg_list[reg3]),9)
+    i1=[reg_list[reg2][0:3],reg_list[reg2][3:]]
+    i2=[reg_list[reg3][0:3],reg_list[reg3][3:]]
+    x=round(convert_binary_to_float(i1)+convert_binary_to_float(i2),9)
     
     if x>31.5:
         set_flags("V")
@@ -439,7 +441,9 @@ def addf(reg1,reg2,reg3):
         reg_list[reg1]=convert_float_to_binary(x)[0]+convert_float_to_binary(x)[1]
     
 def subf(reg1,reg2,reg3):
-    x=round(convert_binary_to_float(reg_list[reg2])-convert_binary_to_float(reg_list[reg3]),8)
+    i1=[reg_list[reg2][0:3],reg_list[reg2][3:]]
+    i2=[reg_list[reg3][0:3],reg_list[reg3][3:]]
+    x=round(convert_binary_to_float(i1)-convert_binary_to_float(i2),8)
     if x<0:
         set_flags("V")
         reg_list[reg1]="0000000000000000"

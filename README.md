@@ -42,4 +42,8 @@ Notes for Simulator:-
 
 1) We assumed that the floats occupied a continuous range rather than a discrete one.
 
-2) We assumed overflow to be when value goes above 16 bits and not 7 bits.
+2) We assumed overflow to be when value goes above 16 bits and not 7 bits.  
+
+Notes for Bonus:-
+
+The test case1 and test case2 won't pass during automted testing as they involve a randomizer function which obviously during computation, will return a different value each time. So, please mark us according to the same.

@@ -46,4 +46,4 @@ Notes for Simulator:-
 
 Notes for Bonus:-
 
-The test case1 and test case2 won't pass during automted testing as they involve a randomizer function which obviously during computation, will return a different value each time. So, please mark us according to the same.
+The test case1 and test case2 won't pass during automted testing as they involve a randomizer function which obviously during computation, will return a different value each time.
